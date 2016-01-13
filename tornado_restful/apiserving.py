@@ -66,7 +66,7 @@ class RestResource(tornado.web.RequestHandler):
             method_info = func.method_info
 
             if method_info.http_method != method:
-                break
+                continue
 
             # List of service endpoints
             endpoint = re.findall(r"(?<=/)\w+", method_info.get_path(self.api_info))
@@ -75,11 +75,11 @@ class RestResource(tornado.web.RequestHandler):
                 lambda x: x in path_parts, endpoint)
 
             if endpoint != endpoint_from_request:
-                break
+                continue
             endpoint_params = re.findall(r"(?<={)\w+", method_info.get_path(self.api_info))
 
             if len(endpoint_params) + len(endpoint) != len(endpoints_and_params):  # noqa
-                break
+                continue
 
             try:
                 self.set_header("Content-Type", 'application/json')
