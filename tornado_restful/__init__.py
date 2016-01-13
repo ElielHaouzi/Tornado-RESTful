@@ -6,4 +6,5 @@ from api_config import api
 from api_config import method
 # from api_config import ResourceContainer
 # from api_exceptions import *
-# from apiserving import *
+from apiserving import RestService
+from apiserving import RestResource
