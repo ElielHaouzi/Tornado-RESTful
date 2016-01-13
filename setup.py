@@ -21,7 +21,7 @@ setup(
     long_description=long_description,
     author='Eliel Haouzi',
     author_email='eliel.haouzi@gmail.com',
-    packages=['tornado-restful'],
+    packages=['tornado_restful'],
     install_requires=["tornado"],
     include_package_data=True
 )
