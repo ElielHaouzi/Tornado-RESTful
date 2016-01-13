@@ -3,7 +3,7 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 """
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 # To use a consistent encoding
 from codecs import open
@@ -21,7 +21,7 @@ setup(
     long_description=long_description,
     author='Eliel Haouzi',
     author_email='eliel.haouzi@gmail.com',
-    packages=find_packages(),
+    packages=['tornado-restful'],
     install_requires=["tornado"],
     include_package_data=True
 )
