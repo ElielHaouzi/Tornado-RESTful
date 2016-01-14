@@ -5,23 +5,28 @@ import traceback
 
 # third-party imports
 import tornado.web
+from tornado import gen
 
 # application-specific imports
 
 
 class RestResource(tornado.web.RequestHandler):
+    @gen.coroutine
     def get(self):
         """Get method."""
         self._handle('GET')
 
+    @gen.coroutine
     def post(self):
         """Post method."""
         self._handle('POST')
 
+    @gen.coroutine
     def put(self):
         """Put method."""
         self._handle('PUT')
 
+    @gen.coroutine
     def delete(self):
         """Delete method."""
         self._handle('DELETE')
@@ -71,8 +76,8 @@ class RestResource(tornado.web.RequestHandler):
             # List of service endpoints
             endpoint = re.findall(r"(?<=/)\w+", method_info.get_path(self.api_info))
             #
-            endpoint_from_request = filter(
-                lambda x: x in path_parts, endpoint)
+            endpoint_from_request = list(filter(
+                lambda x: x in path_parts, endpoint))
 
             if endpoint != endpoint_from_request:
                 continue
@@ -86,7 +91,7 @@ class RestResource(tornado.web.RequestHandler):
                 params_values = self._find_params_value_of_url(
                     endpoint, self.request.path)
                 # p_values = self._convert_params_values(params_values, params_types)
-                response = func(self, *params_values)
+                response = yield func(self, *params_values)
                 if not response:
                     return
 
@@ -106,7 +111,7 @@ class RestResource(tornado.web.RequestHandler):
     def get_resources_functions(self):
         # Get all funcion configured in the class RestResource
         rest_handler_functions = inspect.getmembers(
-            self, predicate=inspect.ismethod)
+            self, predicate=inspect.isroutine)
         # Return only function decorated with the method decorator
         resources_functions = [finstance for fname, finstance in rest_handler_functions if hasattr(finstance, 'method_info')]  # noqa
         return resources_functions
@@ -167,7 +172,6 @@ class RestService(tornado.web.Application):
             _handlers += self._rest_handler_to_tornado_handler(rest_handler)
         if handlers:
             _handlers += handlers
-        print "handlers", _handlers
         tornado.web.Application.__init__(self, _handlers, default_host,
                                          transforms, **settings)
 
