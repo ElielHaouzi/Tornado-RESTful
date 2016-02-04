@@ -86,26 +86,25 @@ class RestResource(tornado.web.RequestHandler):
             if len(endpoint_params) + len(endpoint) != len(endpoints_and_params):  # noqa
                 continue
 
-            try:
-                self.set_header("Content-Type", 'application/json')
-                params_values = self._find_params_value_of_url(
-                    endpoint, self.request.path)
-                # p_values = self._convert_params_values(params_values, params_types)
-                response = yield func(self, *params_values)
-                if not response:
-                    return
+            # try:
+            self.set_header("Content-Type", 'application/json')
+            params_values = self._find_params_value_of_url(
+                endpoint, self.request.path)
+            # p_values = self._convert_params_values(params_values, params_types)
+            response = func(self, *params_values)
+            if not response:
+                return
 
-                if isinstance(response, dict):
-                    self.write(response)
-                    self.finish()
-                elif isinstance(response, list):
-                    self.write({'items': response})
-                    self.finish()
-                else:
-                    raise tornado.web.HTTPError(
-                        500, 'Response is not a json document')
-            except Exception:
-                raise tornado.web.HTTPError(500)
+            if isinstance(response, dict):
+                self.write(response)
+                self.finish()
+            elif isinstance(response, list):
+                self.write({'items': response})
+                self.finish()
+            else:
+                raise tornado.web.HTTPError(500, 'Response is not a json document')
+            # except Exception:
+            #     raise tornado.web.HTTPError(500)
 
     @classmethod
     def get_resources_functions(self):
