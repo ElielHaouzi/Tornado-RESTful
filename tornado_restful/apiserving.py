@@ -61,7 +61,7 @@ class RestResource(tornado.web.RequestHandler):
 
         resources_functions = self.get_resources_functions()
         # Get all http methods configured in the class RestHandler
-        http_methods = [func.method_info.http_method for func in resources_functions]  # noqa
+        http_methods = set([func.method_info.http_method for func in resources_functions])  # noqa
 
         if method not in http_methods:
             raise tornado.web.HTTPError(405)
