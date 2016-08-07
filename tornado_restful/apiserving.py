@@ -22,13 +22,21 @@ class RestResource(tornado.web.RequestHandler):
     @gen.coroutine
     def post(self):
         """Post method."""
+        try:
+            self.request.body = tornado.escape.json_decode(self.request.body)
+        except ValueError:
+            raise tornado.web.HTTPError(400, 'Invalid JSON')
         yield self._handle('POST')
 
     @gen.coroutine
     def put(self):
         """Put method."""
+        try:
+            self.request.body = tornado.escape.json_decode(self.request.body)
+        except ValueError:
+            raise tornado.web.HTTPError(400, 'Invalid JSON')
         yield self._handle('PUT')
-
+        
     @gen.coroutine
     def delete(self):
         """Delete method."""
