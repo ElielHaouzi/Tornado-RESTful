@@ -235,7 +235,7 @@ class _MethodInfo(object):
     calculated once.
     """
     def __init__(self, name=None, path=None, http_method=None,
-                 auth_level=None):
+                 auth_level=None, content_type=None):
         """Constructor.
 
         Args:
@@ -249,6 +249,7 @@ class _MethodInfo(object):
         self.__path = path
         self.__http_method = http_method
         self.__auth_level = auth_level
+        self.__content_type = content_type
 
     def __safe_name(self, method_name):
         """Restrict method name to a-zA-Z0-9_, first char lowercase."""
@@ -313,6 +314,10 @@ class _MethodInfo(object):
         """Enum from AUTH_LEVEL specifying default frontend auth level."""
         return self.__auth_level
 
+    @property
+    def content_type(self):
+        return self.__content_type
+
     def method_id(self, api_info):
         """Computed method name."""
         if api_info.resource_name:
@@ -323,7 +328,9 @@ class _MethodInfo(object):
                             self.__safe_name(self.name))
 
 
-def method(name=None, path=None, http_method='POST', auth_level=None):
+def method(
+        name=None, path=None, http_method='POST', auth_level=None,
+        content_type='application/json'):
     """Decorate a Method for use by the framework above.
 
     This decorator can be used to specify a method name, path, http method,
@@ -349,6 +356,7 @@ def method(name=None, path=None, http_method='POST', auth_level=None):
     """
 
     DEFAULT_HTTP_METHOD = 'POST'
+    DEFAULT_CONTENT_TYPE = 'application/json'
 
     def apiserving_method_decorator(api_method):
         """Decorator for ProtoRPC method that configures Google's API server.
@@ -370,7 +378,8 @@ def method(name=None, path=None, http_method='POST', auth_level=None):
         invoke_remote.method_info = _MethodInfo(
             name=name or api_method.__name__, path=path or api_method.__name__,
             http_method=http_method or DEFAULT_HTTP_METHOD,
-            auth_level=auth_level)
+            auth_level=auth_level,
+            content_type=content_type or DEFAULT_CONTENT_TYPE)
         invoke_remote.__name__ = invoke_remote.method_info.name
 
         return invoke_remote

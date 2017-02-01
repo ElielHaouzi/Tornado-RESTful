@@ -36,7 +36,7 @@ class RestResource(tornado.web.RequestHandler):
         except ValueError:
             raise tornado.web.HTTPError(400, 'Invalid JSON')
         yield self._handle('PUT')
-        
+
     @gen.coroutine
     def delete(self):
         """Delete method."""
@@ -84,6 +84,15 @@ class RestResource(tornado.web.RequestHandler):
 
             if method_info.http_method != method:
                 continue
+
+            if (method_info.http_method == 'POST' or
+                    method_info.http_method == 'PUT'):
+                if method_info.content_type == 'application/json':
+                    try:
+                        self.request.body = tornado.escape.json_decode(
+                            self.request.body)
+                    except ValueError:
+                        raise tornado.web.HTTPError(400, 'Invalid JSON')
 
             # List of service endpoints
             endpoint = re.findall(
