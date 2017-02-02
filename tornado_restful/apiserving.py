@@ -7,6 +7,7 @@ import traceback
 # third-party imports
 import tornado.web
 from tornado import gen
+from tornado.escape import json_decode
 
 # application-specific imports
 
@@ -85,15 +86,6 @@ class RestResource(tornado.web.RequestHandler):
             if method_info.http_method != method:
                 continue
 
-            if (method_info.http_method == 'POST' or
-                    method_info.http_method == 'PUT'):
-                if method_info.content_type == 'application/json':
-                    try:
-                        self.request.body = tornado.escape.json_decode(
-                            self.request.body)
-                    except ValueError:
-                        raise tornado.web.HTTPError(400, 'Invalid JSON')
-
             # List of service endpoints
             endpoint = re.findall(
                 r"(?<=/)\w+", method_info.get_path(self.api_info))
@@ -109,6 +101,12 @@ class RestResource(tornado.web.RequestHandler):
             if len(endpoint_params) + len(endpoint) != len(endpoints_and_params):  # noqa
                 continue
 
+            if (method_info.http_method in ['POST', 'PUT'] and
+                    method_info.content_type == 'application/json'):
+                try:
+                    self.request.body = json_decode(self.request.body)
+                except ValueError:
+                    raise tornado.web.HTTPError(400, 'Invalid JSON')
             # try:
             self.set_header("Content-Type", 'application/json')
             params_values = self._find_params_value_of_url(
