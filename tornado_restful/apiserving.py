@@ -107,21 +107,25 @@ class RestResource(tornado.web.RequestHandler):
                     self.request.body = json_decode(self.request.body)
                 except ValueError:
                     raise tornado.web.HTTPError(400, 'Invalid JSON')
+
             # try:
-            self.set_header("Content-Type", 'application/json')
             params_values = self._find_params_value_of_url(
                 endpoint, self.request.path)
             # p_values = self._convert_params_values(params_values, params_types)
             response = yield func(self, *params_values)
 
             if isinstance(response, dict):
+                self.set_header("Content-Type", 'application/json')
                 self.write(response)
                 self.finish()
             elif isinstance(response, list):
+                self.set_header("Content-Type", 'application/json')
                 self.write({'items': response})
                 self.finish()
             else:
-                raise tornado.web.HTTPError(500, 'Response is not a json document')
+                self.write(response)
+                self.finish()
+                # raise tornado.web.HTTPError(500, 'Response is not a json document')
             # except Exception:
             #     raise tornado.web.HTTPError(500)
 
