@@ -3,6 +3,7 @@ import logging
 import inspect
 import re
 import traceback
+import json
 
 # third-party imports
 import tornado.web
@@ -57,7 +58,11 @@ class RestResource(tornado.web.RequestHandler):
             if 'exc_info' in kwargs:
                 exception = kwargs['exc_info'][1]
                 if isinstance(exception, tornado.web.HTTPError) and exception.log_message:  # noqa
-                    error['message'] = exception.log_message % exception.args
+                    try:
+                        error.update(
+                            json.loads(exception.log_message % exception.args))
+                    except Exception:
+                        error['message'] = exception.log_message % exception.args  # noqa
             self.finish(error)
 
     @gen.coroutine
